@@ -247,6 +247,11 @@ const mutations = {
       state.currentFile.history = history
     }
   },
+  SET_FIRST_VIS_ITEM (state, firstViewportVisibleItem) {
+    if (hasKeys(state.currentFile)) {
+      state.currentFile.firstViewportVisibleItem = firstViewportVisibleItem
+    }
+  },
   CLOSE_TABS (state, tabIdList) {
     if (!tabIdList || tabIdList.length === 0) return
 
@@ -922,7 +927,8 @@ const actions = {
 
   // Content change from realtime preview editor and source code editor
   // WORKAROUND: id is "muya" if changes come from muya and not source code editor! So we don't have to apply the workaround.
-  LISTEN_FOR_CONTENT_CHANGE ({ commit, dispatch, state, rootState }, { id, markdown, wordCount, cursor, history, toc }) {
+  LISTEN_FOR_CONTENT_CHANGE ({ commit, dispatch, state, rootState }, { id, markdown, wordCount, cursor, history, toc, firstViewportVisibleItem }) {
+    console.log("Content change called and aid firstVisible is", firstViewportVisibleItem)
     const { autoSave } = rootState.preferences
     const {
       id: currentId,
@@ -952,6 +958,10 @@ const actions = {
           if (history) {
             tab.history = history
           }
+          //Set Line or First Visible Item Index
+          if (firstViewportVisibleItem){
+            tab.firstViewportVisibleItem = firstViewportVisibleItem
+          }
           break
         }
       }
@@ -960,6 +970,8 @@ const actions = {
 
     markdown = adjustTrailingNewlines(markdown, trimTrailingNewline)
     commit('SET_MARKDOWN', markdown)
+
+    
 
     // Ignore new line which is added if the editor text is empty (#422)
     if (oldMarkdown.length === 0 && markdown.length === 1 && markdown[0] === '\n') {
@@ -977,6 +989,9 @@ const actions = {
     // Set history
     if (history) {
       commit('SET_HISTORY', history)
+    }
+    if (firstViewportVisibleItem){
+      commit('SET_FIRST_VIS_ITEM', firstViewportVisibleItem)
     }
     // Set toc
     if (toc && !equal(toc, listToc)) {

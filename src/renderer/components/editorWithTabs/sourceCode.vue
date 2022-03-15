@@ -10,9 +10,11 @@
 import codeMirror, { setMode, setCursorAtLastLine, setTextDirection } from '../../codeMirror'
 import { wordCount as getWordCount } from 'muya/lib/utils'
 import { mapState } from 'vuex'
-import { adjustCursor } from '../../util'
+import { adjustCursor, animatedScrollTo } from '../../util'
 import bus from '../../bus'
 import { oneDarkThemes, railscastsThemes } from '@/config'
+
+const STANDAR_Y = 320
 
 export default {
   props: {
@@ -43,6 +45,20 @@ export default {
   },
 
   watch: {
+    currentTab: function (value, oldValue) {
+      if (! this.sourceCode)
+        return;
+      //Don't need to worry about setting the line on the oldValue already did in prepareTabSwitch
+      if (value && value !== oldValue) {
+        if (value.firstViewportVisibleItem && value.firstViewportVisibleItem.startsWith("S")){
+          let line = value.firstViewportVisibleItem.substring(1);
+          this.$nextTick(() => {
+            this.scrollToLineNumberInViewport(line, 15,true);
+          });
+        }
+      }
+
+    },
     textDirection: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
@@ -237,15 +253,29 @@ export default {
     },
     // Commit changes from old tab. Problem: tab was already switched, so commit changes with old tab id.
     prepareTabSwitch () {
+
+      let firstViewportVisibleItem = "S" + this.getFirstLineNumberInViewport();
+      if (this.sourceCode == false)//this shouldn't happen
+        firstViewportVisibleItem = undefined;       
+
       if (this.commitTimer) clearTimeout(this.commitTimer)
       if (this.tabId) {
         const { editor } = this
         const { cursor, markdown } = this.getMarkdownAndCursor(editor)
-        this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', { id: this.tabId, markdown, cursor })
+        this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', { id: this.tabId, markdown, cursor, firstViewportVisibleItem })
         this.tabId = null // invalidate tab id
       }
     },
-
+    scrollToLineNumberInViewport(line, duration=300, dontAddStandardHeadroom=false){
+      let pos = this.editor.charCoords({line:line,ch:0},"local").top;
+      const DURATION = duration;
+      if (! dontAddStandardHeadroom)
+        pos -= STANDAR_Y;
+      animatedScrollTo(this.$el, pos, DURATION)
+    },
+    getFirstLineNumberInViewport(){
+      return this.editor.coordsChar({left:0,top:this.$el.scrollTop},"local").line;
+    },
     handleSelectAll () {
       if (!this.sourceCode) {
         return
