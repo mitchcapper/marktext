@@ -302,10 +302,9 @@ class EditorWindow extends BaseWindow {
 
       const { preferences } = this._accessor
       const startUpAction = preferences.getItem('startUpAction')
-      if (startUpAction === "lastFolder"){
-        preferences.setItem('defaultDirectoryToOpen',pathname)
+      if (startUpAction === 'lastFolder') {
+        preferences.setItem('defaultDirectoryToOpen', pathname)
       }
-
     } else {
       this._directoryToOpen = pathname
     }

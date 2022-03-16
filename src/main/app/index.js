@@ -152,7 +152,7 @@ class App {
       theme
     } = preferences.getAll()
 
-    if ( (startUpAction === 'folder' || startUpAction === 'lastFolder') && defaultDirectoryToOpen) {
+    if ((startUpAction === 'folder' || startUpAction === 'lastFolder') && defaultDirectoryToOpen) {
       const info = normalizeMarkdownPath(defaultDirectoryToOpen)
       if (info) {
         _openFilesCache.unshift(info)
@@ -505,7 +505,7 @@ class App {
     })
 
     ipcMain.on('app-open-directory-by-id', (windowId, pathname, openInSameWindow) => {
-      const { openFolderInNewWindow, startUpAction } = this._accessor.preferences.getAll()
+      const { openFolderInNewWindow } = this._accessor.preferences.getAll()
       if (openInSameWindow || !openFolderInNewWindow) {
         const editor = this._windowManager.get(windowId)
         if (editor) {
