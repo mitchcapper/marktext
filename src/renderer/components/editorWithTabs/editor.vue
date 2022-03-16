@@ -111,7 +111,8 @@ import '@/assets/themes/codemirror/one-dark.css'
 // import 'view-image/lib/imgViewer.css'
 import CloseIcon from '@/assets/icons/close.svg'
 
-const STANDAR_Y = 320
+//Minus 67 here is the Y offset of the container itself, before we didn't include that in the scroll calculations, as we do now this keeps the actual Y offset the same
+const STANDAR_Y = 320-67
 
 export default {
   components: {
@@ -1130,8 +1131,11 @@ export default {
       const anchor = document.querySelector(selector)
       if (anchor) {
         const DURATION = duration
+        const anchor_y = anchor.getBoundingClientRect().y
+        const container_y = container.getBoundingClientRect().y
+
         const add = dontAddStandardHeadroom ? 0 : STANDAR_Y;
-        animatedScrollTo(container, anchor.offsetTop - add, DURATION)
+        animatedScrollTo(container, container.scrollTop + anchor_y - container_y - add, DURATION)
       }
     },
 
