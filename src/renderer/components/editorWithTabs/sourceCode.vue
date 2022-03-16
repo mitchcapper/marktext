@@ -14,7 +14,8 @@ import { adjustCursor, animatedScrollTo } from '../../util'
 import bus from '../../bus'
 import { oneDarkThemes, railscastsThemes } from '@/config'
 
-const STANDAR_Y = 320
+//Same as editor.vue
+const STANDAR_Y = 320-67
 
 export default {
   props: {
