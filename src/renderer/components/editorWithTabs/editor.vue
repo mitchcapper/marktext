@@ -95,6 +95,7 @@ import TableBarTools from 'muya/lib/ui/tableTools'
 import FrontMenu from 'muya/lib/ui/frontMenu'
 import Search from '../search'
 import bus from '@/bus'
+
 import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
 import { showContextMenu } from '@/contextMenu/editor'
 import notice from '@/services/notification'
@@ -873,7 +874,174 @@ export default {
       return this.$store.dispatch('ASK_FOR_IMAGE_PATH')
     },
 
+  getFirstElementInViewport(){
+    let node = this.editor.container
+    if (node.childNodes.length == 0)
+      return null
+    let offsetY = node.scrollTop
+    node = node.childNodes[0];//this gets us to the editors primary div
+    if (offsetY == 0){
+      if (node.childNodes.length == 0)
+        return null;
+      return node.childNodes[0];
+    }
+    const nodeStack = []
+      while (node) {
+            // Only iterate over elements and text nodes
+            if (node.nodeType > 3) {
+              node = nodeStack.pop()
+              continue
+            }
+            if (node.offsetTop >= offsetY)
+                return node; 
+            if (node.nodeType === 1) {
+                // this is an element
+                // add all its children to the stack
+                let i = node.childNodes.length - 1
+                while (i >= 0) {
+                  nodeStack.push(node.childNodes[i])
+                  i -= 1
+                }
+              }
+          
+              node = nodeStack.pop()
+            
+      }    
+    },
+    getLastElementInViewport(){
+    let node = this.editor.container
+    if (node.childNodes.length == 0)
+      return null
+    let minOffsetY = node.scrollTop
+    let maxOffsetY = minOffsetY + node.clientHeight - 20
+    node = node.childNodes[0];//this gets us to the editors primary div
+    if (maxOffsetY >= node.scrollHeight){
+      if (node.childNodes.length == 0)
+        return null;
+      return node.childNodes[node.childNodes.length-1];
+    }
+    let best_node = null
+    let best_offsetTop = minOffsetY-1
+    const nodeStack = []
+      while (node) {
+            // Only iterate over elements and text nodes
+            if (node.nodeType > 3 || node.offsetTop > maxOffsetY || (node.offsetTop + node.offsetHeight)  < best_offsetTop) {
+              node = nodeStack.pop()
+              continue
+            }
+            if (node.offsetTop <= maxOffsetY && node.offsetTop > best_offsetTop){ //not zero as that is our first parent node
+                best_node = node;
+                best_offsetTop = node.offsetTop;
+            }
+            if (node.nodeType === 1) {
+                // this is an element
+                // add all its children to the stack
+                for (let i = 0; i < node.childNodes.length; i++){
+                  nodeStack.push(node.childNodes[i])
+                }
+                
+              }
+          
+              node = nodeStack.pop()
+      }
+      return best_node
+    },
+    FixPageUpDown() {
+      let direction = this.pageUpDownLastFix;
+      this.pageUpDownLastFix=null;
+        const cursor_y = this.editor.getSelection().cursorCoords.y;
+        const header = this.editor.container.getBoundingClientRect();
+        //console.log("in fix cursor", cursor_y, "header_y", header.y, " max ", header.y + header.height)
+        if (cursor_y < header.y || cursor_y > header.y + header.height) {
+          let elem = direction == "PageUp" ? this.getFirstElementInViewport() : this.getLastElementInViewport();
+          //elem = findNearestParagraph(elem)
+          if (! elem || ! elem.id){
+            //console.log("no element found")
+            return;
+          }
+          let block = this.editor.contentState.getBlock(elem.id);
+          
+      //     let new_cursor = {
+      // noHistory: true,
+      // key: block,
+      // focus: block,
+      // start: block,
+      // end: block
+     
+      //     };
+          let new_cursor = {
+      noHistory: true,
+      start: {
+        key: block.key,
+        offset: 0
+      },
+      end: {
+        key: block.key,
+        offset: 0
+      },
+      focus: {
+        key: block.key,
+        offset: 0
+      },
+      anchor: {
+        key: block.key,
+        offset: 0
+      }
+    }
+        //let curnt = this.editor.contentState.cursor;
+          //console.log("Going to set new cursor.... orid elem",elem.id,"cursor rn: ", curnt,"cur sel",this.editor.getSelection());
+          //this.editor.contentState.render(true);
+          //this.editor.setCursor(new_cursor)
+          //const paragraph = this.editor.contentState.findNearestParagraph(elem)
+          this.editor.keyboard.hideAllFloatTools()
+           this.editor.contentState.cursor =  new_cursor;
+          //selection.setCursorRange(new_cursor)
+          // selection.moveCursor(elem)
+          // selection.select(elem,0)
+           //this.editor.contentState.cursor =  new_cursor;
+          // this.editor.keyboard.hideAllFloatTools()
+           this.editor.contentState.singleRender(block)
+          // selection.getCursorRange();
+           //this.editor.contentState.partialRender();
+           this.editor.contentState.arrowHandler({key: "ArrowLeft",preventDefault: ()=>{},stopPropagation: ()=>{}})
+           this.editor.contentState.arrowHandler({key: "ArrowRight",preventDefault: ()=>{},stopPropagation: ()=>{}})
+           this.editor.contentState.arrowHandler({key: "ArrowRight",preventDefault: ()=>{},stopPropagation: ()=>{}})
+           this.editor.keyboard.hideAllFloatTools()
+           this.editor.dispatchSelectionChange()
+            this.editor.dispatchSelectionFormats()
+            this.editor.dispatchChange()
+          //  this.editor.setCursor(new_cursor)
+          //  this.editor.contentState.render(true);
+          
+          
+    //const id = paragraph.id
+    //const block = this.getBlock(id)
+          //this.editor.contentState.setCursor();
+          //this.editor.contentState.render(true);
+          //this.scrollToCursor(0);
+          // let text = block.text;
+          // if (block.children.length > 0)
+          //   text = block.children[0].text;
+          //console.log("Fixed pageupdown?? set to block: ", text  );
+
+
+        }
+    },
     keyup (event) {
+      //console.log("key hit ", event, "cursor: ",this.cursor,"location is",this.editor.getSelection().cursorCoords, " and parent: ",this.editor.container.getBoundingClientRect().y)
+      if (event.key == 'PageUp' || event.key == 'PageDown'){
+        if (this.pageUpDownLastFix && this.pageUpDownLastFix != event.key){//they switched directions fix now
+        //console.log("switched directions")
+          this.FixPageUpDown();//this is too late to work
+        }
+        this.pageUpDownLastFix = event.key;
+        if (this.pageUpDownFixTimer)
+          clearTimeout(this.pageUpDownFixTimer);
+        this.pageUpDownFixTimer = setTimeout(() => {
+          this.pageUpDownFixTimer = null
+          this.FixPageUpDown()
+        }, 140)
+      }
       if (event.key === 'Escape') {
         this.setImageViewerVisible(false)
       }
