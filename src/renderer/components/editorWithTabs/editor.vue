@@ -509,7 +509,6 @@ export default {
             oldValue.firstViewportVisibleItem = "M" + this.editor.contentState.getBlockIndex(firstViewportVisibleItem.id);
           else
             oldValue.firstViewportVisibleItem = "Z";//undefining if already set
-            console.log("saved off visible item",oldValue.firstViewportVisibleItem," line val: ",firstViewportVisibleItem.innerText)
         }
 
       if (value && value !== oldValue) {

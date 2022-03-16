@@ -928,7 +928,6 @@ const actions = {
   // Content change from realtime preview editor and source code editor
   // WORKAROUND: id is "muya" if changes come from muya and not source code editor! So we don't have to apply the workaround.
   LISTEN_FOR_CONTENT_CHANGE ({ commit, dispatch, state, rootState }, { id, markdown, wordCount, cursor, history, toc, firstViewportVisibleItem }) {
-    console.log("Content change called and aid firstVisible is", firstViewportVisibleItem)
     const { autoSave } = rootState.preferences
     const {
       id: currentId,
