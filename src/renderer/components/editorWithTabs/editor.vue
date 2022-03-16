@@ -1084,13 +1084,11 @@ export default {
       return this.scrollToElement(`#${slug}`)
     },
 
-    getFirstElementInViewport(forceScroll=0){
+    getFirstElementInViewport(){
     let node = this.editor.container
     if (node.childNodes.length == 0)
       return null
     let offsetY = node.scrollTop
-    if (forceScroll)
-      offsetY = forceScroll
     node = node.childNodes[0];//this gets us to the editors primary div
     if (offsetY == 0){
       if (node.childNodes.length == 0)
