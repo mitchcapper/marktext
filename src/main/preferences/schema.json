@@ -59,7 +59,8 @@
     "enum": [
       "folder",
       "lastState",
-      "blank"
+      "blank",
+      "lastFolder"
     ],
     "default": "blank"
   },

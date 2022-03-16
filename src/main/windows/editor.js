@@ -299,6 +299,13 @@ class EditorWindow extends BaseWindow {
       this._openedRootDirectory = pathname
       ipcMain.emit('watcher-watch-directory', browserWindow, pathname)
       browserWindow.webContents.send('mt::open-directory', pathname)
+
+      const { preferences } = this._accessor
+      const startUpAction = preferences.getItem('startUpAction')
+      if (startUpAction === "lastFolder"){
+        preferences.setItem('defaultDirectoryToOpen',pathname)
+      }
+
     } else {
       this._directoryToOpen = pathname
     }
