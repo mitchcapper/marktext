@@ -54,7 +54,10 @@ export const EVENT_KEYS = Object.freeze(generateKeyHash([
   'ArrowLeft',
   'ArrowRight',
   'Tab',
-  'Escape'
+  'Escape',
+  'Control',
+  'Alt',
+  'Shift'
 ]))
 
 export const LOWERCASE_TAGS = Object.freeze(generateKeyHash([
