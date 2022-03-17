@@ -488,7 +488,7 @@ class App {
       const win = editor.browserWindow
 
       // probably should pass this further down but at least createEditorWindow isn't setup great for taking params.
-      setTimeout(() => win.webContents.send('mt::scroll-to-header-by-name', slug), 5000)
+      setTimeout(() => win.webContents.send('mt::scroll-to-header-by-name', slug), 250)
     })
     ipcMain.on('app-open-files-by-id', (windowId, fileList) => {
       const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
