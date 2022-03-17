@@ -1065,15 +1065,13 @@ export default {
     scrollToHeader (slug) {
       return this.scrollToElement(`#${slug}`)
     },
-    tocNameToSlugName(slug){
-      return slug.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "-");
-
+    tocNameToSlugName (slug) {
+      return slug.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '-')
     },
     scrollToHeaderByName (slug) {
       this.editor.contentState.getTOC().forEach(item => {
         if (this.tocNameToSlugName(item.content) === slug) {
           this.scrollToHeader(item.slug)
-          return;
         }
       })
     },

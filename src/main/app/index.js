@@ -466,13 +466,13 @@ class App {
       this._openSettingsWindow()
     })
     ipcMain.on('scroll-to-header-by-name', (windowId, slug) => {
-      let editor = this._windowManager.get(windowId);
-      const win = editor.browserWindow;
+      let editor = this._windowManager.get(windowId)
+      const win = editor.browserWindow
       win.webContents.send('mt::scroll-to-header-by-name', slug)
     })
     ipcMain.on('app-open-file-by-id', (windowId, filePath, slug) => {
       const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
-      let editor=null
+      let editor = null
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, [filePath])
       } else {
@@ -481,19 +481,14 @@ class App {
           editor.openTab(filePath, {}, true)
         }
       }
-      if (!slug)
-        return;
+      if (!slug) { return }
 
-      if (! editor)
-        editor = this._windowManager.get(windowId);
-      if (! editor)
-        return;
-      const win = editor.browserWindow;
-      
-      
-      //probably should pass this further down but at least createEditorWindow isn't setup great for taking params.
-      setTimeout(()=>win.webContents.send('mt::scroll-to-header-by-name', slug), 5000);
-      
+      if (!editor) { editor = this._windowManager.get(windowId) }
+      if (!editor) { return }
+      const win = editor.browserWindow
+
+      // probably should pass this further down but at least createEditorWindow isn't setup great for taking params.
+      setTimeout(() => win.webContents.send('mt::scroll-to-header-by-name', slug), 5000)
     })
     ipcMain.on('app-open-files-by-id', (windowId, fileList) => {
       const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')

@@ -414,25 +414,24 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
   if (!data || (!data.href && !data.text)) {
     return
   }
-  let parsedUrl = null;
-  let slug = null;
+  let parsedUrl = null
+  let slug = null
 
   let urlCandidate = data.href || data.text
-  if (typeof(urlCandidate) === "string"){
-    try{
-      parsedUrl = new URL(urlCandidate,"b:/fake/");
-      if (parsedUrl.protocol === "b:"){ //seems like a local file
-        if (parsedUrl.hash){
-          slug = parsedUrl.hash.substring(1);
-          if (urlCandidate.endsWith(parsedUrl.hash)){
-            urlCandidate = urlCandidate.substring(0,urlCandidate.length - parsedUrl.hash.length);
+  if (typeof (urlCandidate) === 'string') {
+    try {
+      parsedUrl = new URL(urlCandidate, 'b:/fake/')
+      if (parsedUrl.protocol === 'b:') { // seems like a local file
+        if (parsedUrl.hash) {
+          slug = parsedUrl.hash.substring(1)
+          if (urlCandidate.endsWith(parsedUrl.hash)) {
+            urlCandidate = urlCandidate.substring(0, urlCandidate.length - parsedUrl.hash.length)
           }
         }
       }
-    }catch{
-  
+    } catch {
+
     }
-   
   }
   if (URL_REG.test(urlCandidate)) {
     shell.openExternal(urlCandidate)
@@ -444,7 +443,7 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
 
   const href = urlCandidate
   if (!href) {
-    if (slug){
+    if (slug) {
       const win = BrowserWindow.fromWebContents(e.sender)
       gotoSlug(win, slug)
     }
@@ -553,7 +552,7 @@ export const openFolder = async win => {
   }
 }
 export const gotoSlug = (win, slug) => {
-    ipcMain.emit('scroll-to-header-by-name',win.id, slug)
+    ipcMain.emit('scroll-to-header-by-name', win.id, slug)
 }
 export const openFileOrFolder = (win, pathname, slug) => {
   const resolvedPath = normalizeAndResolvePath(pathname)
